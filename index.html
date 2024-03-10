@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Search</title>
+    <style>
+        *{
+            padding: 0%;
+            margin: 0;
+        }
+        body {
+           display: flex;
+           height: 100vh;
+           align-items: center;
+           flex-direction: column;
+        }
+      
+        .container {
+            
+            max-width: 800px;
+            padding-top: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        #searchInput {
+            width: 100%;
+            max-width: 50%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            outline: none;
+        }
+
+        .image-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .image-div {
+            width: 200px;
+            height: 200px;
+            background-color: #ddd;
+            margin: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .image-div:hover {
+            transform: scale(1.1);
+        }
+
+        .image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    /* typing */
+    .typing-container {
+    text-align: center;
+    color: #333;
+    position: relative;
+  }
+
+  #typing-text {
+    font-size: 36px;
+    display: inline-block;
+    position: relative;
+  }
+
+  .cursor {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 2px;
+    width: 8px;
+    height: 36px;
+    background-color: orange;
+    animation: blink-caret 0.75s step-end infinite;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  }
+
+  @keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: orange; }
+  }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <input type="text" id="searchInput" placeholder="Search...">
+        <div class="image-container">
+
+        </div>
+    </div>
+
+    <div class="typing-container" id="typing">
+        <div id="typing-text"></div>
+        <span class="cursor"></span>
+    </div>
+
+    <script>
+        const apikey = 'Hu8x64nufR7bQ2Zh49KFwr4ADPc3SRWUo6Q80gTDVPW69g5hUDCSRCge';
+        const headers = {
+            'Authorization': apikey
+        }
+
+        let q = document.getElementById('searchInput');
+        let imagecontainer = document.querySelector('.image-container');
+       let type =  document.getElementById('typing');
+
+        q.addEventListener('keydown', (event) => {
+            let key = event.key;
+            if (key == 'Enter') {
+                type.style.display = 'none';
+                const query = q.value;
+                let url = `https://api.pexels.com/v1/search?query=${query}&per_page=20`; 
+                fetch(url, { headers })
+                    .then(res => res.json())
+                    .then(data => {
+                        imagecontainer.innerHTML = ''; 
+                        data.photos.forEach(element => {
+                            let div = document.createElement('div');
+                            div.classList.add('image-div'); 
+                            let image = document.createElement('img');
+                            let src = element.src.original;
+                            image.setAttribute('src', src);
+                            image.classList.add('image'); 
+                            div.appendChild(image);
+                            imagecontainer.appendChild(div);
+                        });
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
+            }
+        });
+
+        //typing
+    document.addEventListener('DOMContentLoaded', function() {
+    const text = "you can search here any image like girl , boy  , animal , house anything";
+    const typingElement = document.getElementById('typing-text');
+    const cursorElement = document.querySelector('.cursor');
+    let index = 0;
+    let speed = 100; // Initial typing speed
+
+    function type() {
+      if (index < text.length) {
+        typingElement.innerHTML += text.charAt(index);
+        if (text.charAt(index) === '.' || text.charAt(index) === ',') {
+          speed = 500; // Pause for punctuation
+        } else {
+          speed = 100; // Regular typing speed
+        }
+        cursorElement.style.left = `${typingElement.clientWidth}px`; // Move cursor with text
+        index++;
+        setTimeout(type, speed);
+      } else {
+        cursorElement.style.display = 'none'; // Hide cursor when typing finishes
+      }
+    }
+
+    type();
+  });
+    </script>
+</body>
+
+</html>
